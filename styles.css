@@ -1,5 +1,5 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Zen Maru Gothic', sans-serif;
     background-color: #f5f5dc;
     color: #333;
 }
@@ -63,6 +63,7 @@ input, select {
 }
 
 button {
+    font-family: 'Zen Maru Gothic', sans-serif;
     margin-top: 20px;
     padding: 10px;
     background-color: #ffa500;
