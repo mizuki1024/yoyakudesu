@@ -8,52 +8,176 @@
 </head>
 <body>
     <div class="container">
+        <div class="logo">
+            <img src="logo.png" alt="ロゴ">
+        </div>
         <div class="map-section">
             <img src="camp-map.png" alt="キャンプ場の地図" class="map-image">
-            <div class="camp-site" style="top: 20%; left: 40%;">キャンプサイト A-C</div>
-            <div class="camp-site" style="top: 40%; left: 60%;">キャンプサイト D-F</div>
-            <div class="camp-site" style="top: 70%; left: 50%;">キャンプサイト G-K</div>
+            <div class="camp-site" style="top: 20%; left: 50%;">キャンプサイト A-C</div>
+            <div class="camp-site" style="top: 43%; left: 60%;">キャンプサイト D-F</div>
+            <div class="camp-site" style="top: 74%; left: 50%;">キャンプサイト G-K</div>
         </div>
         <div class="form-section">
             <form id="reservation-form">
                 <label for="name">お名前</label>
-                <input type="text" id="name" name="name" required>
-
+                <input type="text" id="name" name="name" autocomplete="name" required>
+            
                 <label for="email">メールアドレス</label>
-                <input type="email" id="email" name="email" required>
-
+                <input type="email" id="email" name="email" autocomplete="email" required>
+            
                 <label for="people">人数</label>
-                <select id="people" name="people">
+                <select id="people" name="people" required>
                     <option value="1">1人</option>
                     <option value="2">2人</option>
                     <option value="3">3人</option>
                     <option value="4">4人</option>
                 </select>
-
-                <label for="site">使用したいキャンプサイト</label>
-                <select id="site" name="site">
-                    <option value="A-C">A-C</option>
-                    <option value="D-F">D-F</option>
-                    <option value="G-K">G-K</option>
-                </select>
-
+            
                 <label for="date">希望日</label>
                 <input type="date" id="date" name="date" required>
-
+            
+                <label for="site">使用したいキャンプサイト</label>
+                <select id="site" name="site" required>
+                    <option value="" disabled selected>日付を選択してください</option>
+                </select>
+            
                 <button type="submit">予約する</button>
             </form>
+            
             <form id="login-form">
                 <h3>サブスク登録済みの方はこちらから</h3>
                 <label for="login-email">メールアドレス</label>
-                <input type="email" id="login-email" name="login-email" required>
-
+                <input type="email" id="login-email" name="login-email" autocomplete="email" required>
+            
                 <label for="password">パスワード</label>
-                <input type="password" id="password" name="password" required>
-
+                <input type="password" id="password" name="password" autocomplete="current-password" required>
+            
                 <button type="submit">ログイン</button>
+                <button type="button" id="subscription-button" onclick="location.href='subscription.html'">サブスク登録がまだの方</button>
             </form>
         </div>
     </div>
-    <script src="scripts.js"></script>
+    <script type="module">
+        // Firebase SDKのインクルード
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics.js";
+        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+        import { addDoc } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"; // addDoc をインポート
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAFsyt6MbqwYxHzOaSsyhGup5qYZYKOpms",
+            authDomain: "tizu-2df5d.firebaseapp.com",
+            projectId: "tizu-2df5d",
+            storageBucket: "tizu-2df5d.appspot.com",
+            messagingSenderId: "121970837294",
+            appId: "1:121970837294:web:003042ff34b80ac75edcbf",
+            measurementId: "G-N88BZKCY1K"
+        };
+    
+        // Firebaseの初期化
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+    
+        document.addEventListener('DOMContentLoaded', function () {
+            // キャンプサイトの選択肢を日付に応じて更新する
+            const dateInput = document.getElementById('date');
+            const siteSelect = document.getElementById('site');
+            const allSites = ["キャンプサイト A-C", "キャンプサイト D-F", "キャンプサイト G-K"];
+    
+            dateInput.addEventListener('change', async function () {
+                const selectedDate = dateInput.value;
+                siteSelect.innerHTML = '';
+    
+                if (selectedDate) {
+                    // Firestoreから指定された日付の予約データを取得
+                    const q = query(collection(db, "reservations"), where("date", "==", selectedDate));
+                    const querySnapshot = await getDocs(q);
+                    
+                    // 予約済みのキャンプサイトをリスト化
+                    const reservedSites = [];
+                    querySnapshot.forEach((doc) => {
+                        reservedSites.push(doc.data().site);
+                    });
+    
+                    // 全てのサイトから予約済みを除いた利用可能なサイトを選択肢として追加
+                    const availableSites = allSites.filter(site => !reservedSites.includes(site));
+                    if (availableSites.length > 0) {
+                        availableSites.forEach(function (site) {
+                            const option = document.createElement('option');
+                            option.value = site;
+                            option.textContent = site;
+                            siteSelect.appendChild(option);
+                        });
+                    } else {
+                        const option = document.createElement('option');
+                        option.value = '';
+                        option.textContent = '利用可能なキャンプサイトがありません';
+                        siteSelect.appendChild(option);
+                    }
+                }
+            });
+    
+            // 予約フォームのバリデーションチェックとFirebaseへの保存
+            const reservationForm = document.getElementById('reservation-form');
+            reservationForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const people = document.getElementById('people').value;
+                const date = document.getElementById('date').value;
+                const site = document.getElementById('site').value;
+    
+                if (name && email && people && date && site) {
+                    try {
+                        // Firestoreに予約データを保存
+                        await addDoc(collection(db, "reservations"), {
+                            name: name,
+                            email: email,
+                            people: people,
+                            date: date,
+                            site: site
+                        });
+                        alert('予約が完了しました！');
+                        reservationForm.reset();
+                    } catch (error) {
+                        console.error("予約の保存中にエラーが発生しました: ", error);
+                        alert('予約の保存中にエラーが発生しました。もう一度お試しください。');
+                    }
+                } else {
+                    alert('全てのフィールドを入力してください。');
+                }
+            });
+    
+            // ログインフォームのバリデーションチェックとFirebase認証
+            const loginForm = document.getElementById('login-form');
+            loginForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const loginEmail = document.getElementById('login-email').value;
+                const password = document.getElementById('password').value;
+    
+                if (loginEmail && password) {
+                    signInWithEmailAndPassword(auth, loginEmail, password)
+                        .then((userCredential) => {
+                            // ログイン成功時の処理
+                            const user = userCredential.user;
+                            alert('ログインに成功しました！');
+                            loginForm.reset();
+                        })
+                        .catch((error) => {
+                            // ログイン失敗時の処理
+                            const errorCode = error.code;
+                            const errorMessage = error.message;
+                            console.error(`ログインエラー: ${errorCode}, ${errorMessage}`);
+                            alert('ログインに失敗しました。メールアドレスまたはパスワードが正しくありません。');
+                        });
+                } else {
+                    alert('全てのフィールドを入力してください。');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

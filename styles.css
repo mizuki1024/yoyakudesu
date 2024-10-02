@@ -4,6 +4,18 @@ body {
     color: #333;
 }
 
+.logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 150px;
+}
+
+.logo img {
+    width: 100%;
+    height: auto;
+}
+
 .container {
     display: flex;
     justify-content: space-around;
@@ -18,12 +30,12 @@ body {
 
 .map-image {
     width: 100%;
-    border: 2px solid #000;
+    border: 2px solid #f5f5dc;
 }
 
 .camp-site {
     position: absolute;
-    background: #ffcc66;
+    background: #31bb3f;
     padding: 5px 10px;
     border-radius: 10px;
     cursor: pointer;
