@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>キャンプ場予約ページ</title>
+</head>
+<body>
+    <div class="container">
+        <div class="map-section">
+            <img src="camp-map.png" alt="キャンプ場の地図" class="map-image">
+            <div class="camp-site" style="top: 20%; left: 40%;">キャンプサイト A-C</div>
+            <div class="camp-site" style="top: 40%; left: 60%;">キャンプサイト D-F</div>
+            <div class="camp-site" style="top: 70%; left: 50%;">キャンプサイト G-K</div>
+        </div>
+        <div class="form-section">
+            <form id="reservation-form">
+                <label for="name">お名前</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="email">メールアドレス</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="people">人数</label>
+                <select id="people" name="people">
+                    <option value="1">1人</option>
+                    <option value="2">2人</option>
+                    <option value="3">3人</option>
+                    <option value="4">4人</option>
+                </select>
+
+                <label for="site">使用したいキャンプサイト</label>
+                <select id="site" name="site">
+                    <option value="A-C">A-C</option>
+                    <option value="D-F">D-F</option>
+                    <option value="G-K">G-K</option>
+                </select>
+
+                <label for="date">希望日</label>
+                <input type="date" id="date" name="date" required>
+
+                <button type="submit">予約する</button>
+            </form>
+            <form id="login-form">
+                <h3>サブスク登録済みの方はこちらから</h3>
+                <label for="login-email">メールアドレス</label>
+                <input type="email" id="login-email" name="login-email" required>
+
+                <label for="password">パスワード</label>
+                <input type="password" id="password" name="password" required>
+
+                <button type="submit">ログイン</button>
+            </form>
+        </div>
+    </div>
+    <script src="scripts.js"></script>
+</body>
+</html>
